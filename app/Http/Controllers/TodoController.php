@@ -13,15 +13,18 @@ use App\Mail\TodoNotShared;
 use App\Mail\TodoShared;
 use App\Mail\TodoClosed;
 
-
 class TodoController extends Controller
 {
+
     protected NotificationService $notificationService;
 
+    // Constructor to inject NotificationService
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
     }
+
+    // Display a listing of the todos
     public function index(Request $request)
     {
         if (Auth::guest()) {
@@ -35,6 +38,7 @@ class TodoController extends Controller
         return view('todo.index', compact('todos', 'categories', 'hasDeletedRecords'));
     }
 
+    // Show the form for creating a new todo
     public function create()
     {
         if (Auth::guest()) {
@@ -45,7 +49,7 @@ class TodoController extends Controller
         return view('todo.create', compact('categories'));
     }
 
-
+    // Show the form for editing the specified todo
     public function edit(Todo $todo)
     {
         if (auth()->user()->id !== $todo->user_id) {
@@ -55,11 +59,13 @@ class TodoController extends Controller
         return view('todo.edit', compact('todo', 'categories'));
     }
 
+    // Display the specified todo
     public function show(Todo $todo)
     {
         return view('todo.show', compact('todo'));
     }
 
+    // Store a newly created todo in storage
     public function store(Request $request)
     {
         $this->validateTodoRequest($request);
@@ -73,6 +79,7 @@ class TodoController extends Controller
         return redirect('/todos/' . $todo->id)->with('status', 'Todo has been created!');
     }
 
+    // Update the specified todo in storage
     public function update(Request $request, Todo $todo)
     {
         $this->validateTodoRequest($request);
@@ -89,12 +96,14 @@ class TodoController extends Controller
         return redirect('/todos/' . $todo->id)->with('status', 'Todo has been updated!');
     }
 
+    // Remove the specified todo from storage (soft delete)
     public function destroy(Todo $todo)
     {
         $todo->delete();
         return redirect('/')->with('status', 'Todo deleted successfully!');
     }
 
+    // Remove the specified todo from storage by ID
     public function delete($id)
     {
         $todo = Todo::findOrFail($id);
@@ -103,6 +112,7 @@ class TodoController extends Controller
         return redirect('/')->with('status', 'Todo deleted successfully!');
     }
 
+    // Display a listing of the trashed todos
     public function trashed()
     {
         $todos = Todo::onlyTrashed()
@@ -113,6 +123,7 @@ class TodoController extends Controller
         return view('todo.trashed', compact('todos'));
     }
 
+    // Restore the specified trashed todo
     public function restore($id)
     {
         $todo = Todo::onlyTrashed()->findOrFail($id);
@@ -121,6 +132,7 @@ class TodoController extends Controller
         return redirect('/')->with('status', 'Todo restored successfully!');
     }
 
+    // Mark the specified todo as completed
     public function done(Todo $todo)
     {
         $todo->completed = 1;
@@ -133,6 +145,7 @@ class TodoController extends Controller
         return redirect('/todos/' . $todo->id)->with('status', 'Todo has been closed!');
     }
 
+    // Get todos based on request filters
     private function getTodos(Request $request)
     {
         $query = Todo::where(function ($query) {
@@ -155,6 +168,7 @@ class TodoController extends Controller
         return $query->orderBy('created_at', 'desc')->paginate(5);
     }
 
+    // Validate the todo request
     private function validateTodoRequest(Request $request)
     {
         $request->validate([
@@ -164,6 +178,7 @@ class TodoController extends Controller
         ]);
     }
 
+    // Get todo data from request
     private function getTodoData(Request $request)
     {
         return [
@@ -176,16 +191,19 @@ class TodoController extends Controller
         ];
     }
 
+    // Check if the shared status has changed
     private function hasSharedChanged(Request $request, Todo $todo)
     {
         return ($request->input('shared') && !$todo->shared) || ($todo->shared == 1 && !$request->input('shared'));
     }
 
+    // Check if the todo is closed
     private function isClosed(Request $request, Todo $todo)
     {
         return $request->input('completed') && !$todo->completed;
     }
 
+    // Handle notifications for shared and closed todos
     private function handleNotifications(Request $request, Todo $todo, $sharedChangedNotification, $closedNotification)
     {
         $mailAddressesToNotify = User::where('id', '!=', Auth::id())->pluck('email')->toArray();
@@ -193,7 +211,6 @@ class TodoController extends Controller
         if ($sharedChangedNotification) {
             $message = $request->input('shared') == 1 ? new TodoShared($todo) : new TodoNotShared($todo);
             $this->notificationService->sendNotification($mailAddressesToNotify, $message);
-
         }
 
         if ($closedNotification && $todo->shared) {
@@ -202,6 +219,7 @@ class TodoController extends Controller
         }
     }
 
+    // Notify users with a given message
     private function notifyUsers($message)
     {
         $mailAddressesToNotify = User::where('id', '!=', Auth::id())->pluck('email')->toArray();

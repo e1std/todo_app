@@ -17,18 +17,16 @@ class TodoClosed extends Mailable
 
     private Todo $todo;
     private User $user;
-    /**
-     * Create a new message instance.
-     */
+
+    // Create a new message instance.
     public function __construct(Todo $todo, User $user)
     {
         $this->todo = $todo;
         $this->user = $user;
     }
 
-    /**
-     * Get the message envelope.
-     */
+
+    // Get the message envelope.
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -36,9 +34,7 @@ class TodoClosed extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
+    // Get the message content definition.
     public function content(): Content
     {
         return new Content(
@@ -50,11 +46,8 @@ class TodoClosed extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
+
+    // Get the attachments for the message.
     public function attachments(): array
     {
         return [];

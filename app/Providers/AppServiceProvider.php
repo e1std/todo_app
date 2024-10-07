@@ -15,15 +15,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Register a singleton instance of NotificationService
         $this->app->singleton(NotificationService::class, function ($app) {
+            // Get the notification strategy from the configuration
             $strategy = config('notification.strategy');
 
+            // Determine the strategy instance based on the configuration
             switch ($strategy) {
                 case 'sms':
-                    $strategyInstance = new SmsNotificationStrategy();
+                // Use SmsNotificationStrategy for SMS notifications
+                $strategyInstance = new SmsNotificationStrategy();
                     break;
                 case 'email':
                 default:
+                    // Use EmailNotificationStrategy for email notifications
                     $strategyInstance = new EmailNotificationStrategy();
                     break;
             }

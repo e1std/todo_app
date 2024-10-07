@@ -15,17 +15,14 @@ class TodoShared extends Mailable
     use Queueable, SerializesModels;
 
     private Todo $todo;
-    /**
-     * Create a new message instance.
-     */
+
+    // Create a new message instance.
     public function __construct(Todo $todo)
     {
         $this->todo = $todo;
     }
 
-    /**
-     * Get the message envelope.
-     */
+    // Get the message envelope.
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -33,9 +30,7 @@ class TodoShared extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
+    // Get the message content definition.
     public function content(): Content
     {
         return new Content(
@@ -44,11 +39,7 @@ class TodoShared extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
+    // Get the attachments for the message.
     public function attachments(): array
     {
         return [];
