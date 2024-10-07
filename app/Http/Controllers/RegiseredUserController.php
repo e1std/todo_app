@@ -21,6 +21,7 @@ class RegiseredUserController extends Controller
         // validate the request
 
         $validatedAttributes = $this->validateRequest($request);
+
         User::create($validatedAttributes);
 
         return redirect('/');
@@ -31,7 +32,7 @@ class RegiseredUserController extends Controller
     {
         return $request->validate([
             'name' => ['required'],
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
         ]);
     }
